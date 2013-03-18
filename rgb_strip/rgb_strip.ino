@@ -9,19 +9,20 @@ void setup() {
   pinMode(CKI, OUTPUT);
   pinMode(ledPin, OUTPUT);
   
-  Serial.begin(9600);
+  // Serial.begin(9600);
   
   clear();
+  postFrame();
 }
 
 // contains the color-value for each of the addressable LED
 long strip_colors[N];
+
 // countes the number of iterations of the loop
 int offset = 0;
 
+// length of the wave segment
 int segment_length = 10;
-
-int color[3] = {0, 0, 0};
 
 void loop() {
   // sets the initial color
@@ -39,7 +40,7 @@ void loop() {
   else
     offset++;
   
-  // do the post frame only inside the loop
+  // use postFrame only once: preferrably at the end of the 'loop()'
   postFrame();
   
   delay(1);
@@ -53,6 +54,8 @@ void loop() {
  *  Color manipulation and transition
  */
 
+
+// [/] rename to fromRGB
 long createRGB( int r, int g, int b ) {
   
   // reverses the order of colors to red, green, blue
@@ -68,8 +71,8 @@ long createRGB( int r, int g, int b ) {
   return result;
 }
 
-
-void updateHSL(int hue, int sat, int val, int colors[3]) {
+// [/] rename to fromHSL
+void createHSL(int hue, int sat, int val, int colors[3]) {
 	// hue: 0-259, sat: 0-255, val (lightness): 0-255
 	int r, g, b, base;
 
@@ -111,9 +114,7 @@ void updateHSL(int hue, int sat, int val, int colors[3]) {
 				b = (((val-base)*(60-(hue%60)))/60)+base;
 				break;
 		}
-		colors[0]=r;
-		colors[1]=g;
-		colors[2]=b;
+		createRGB( r, g, b );
 	}
 }
 
@@ -126,6 +127,8 @@ void updateHSL(int hue, int sat, int val, int colors[3]) {
 
 void setAll( long value ) {
   // changes the values, but does not post frame!
+  // [!] posting frame inside this function will cause the program to halt significantly
+  // and thus reduce the increase the delay by 500us.
   for ( int x = 0; x < N; x++ ) {
     strip_colors[x] = value;
   } 
