@@ -9,7 +9,7 @@ void setup() {
   pinMode(CKI, OUTPUT);
   pinMode(ledPin, OUTPUT);
   
-  // Serial.begin(9600);
+  Serial.begin(9600);
   
   clear();
   postFrame();
@@ -26,11 +26,15 @@ int segment_length = 10;
 
 void loop() {
   // sets the initial color
-  setAll( createRGB(0, 0, 16) );
+  setAll( createRGB( 64, 5, 37 ) );
   
+  // for (int n = (segment_length) -1; n >= 0 ; n--  ) {
   for ( int n = 0; n < (segment_length); n++ ) {
-    float factor = sin( float(n) / segment_length );
-    strip_colors[offset + n] = createRGB( 0, 0, map( n, 0, segment_length, 16, 255 ) );
+    float factor = sin( float(n) / segment_length ) * 1.25;
+    
+    // strip_colors[offset + n] = createRGB( 0, 0, map( n, 0, segment_length, 16, 255 ) );
+    int value = factor * 255;
+    strip_colors[offset + n] = createRGB( 0, 0, value ); 
   }
   
   // since calculation happens after the operation: use >=
