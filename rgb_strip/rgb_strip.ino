@@ -1,8 +1,17 @@
+#define N 32
+
 int SDI = 2; 
 int CKI = 3; 
 int ledPin = 13; 
 
-#define N 32
+int pulse_frequency = 1;
+int pulse_counter = 0;
+
+// length of the wave segment
+int segment_length = 10;
+
+
+
 
 void setup() {
   pinMode(SDI, OUTPUT);
@@ -21,28 +30,46 @@ long strip_colors[N];
 // countes the number of iterations of the loop
 int offset = 0;
 
-// length of the wave segment
-int segment_length = 10;
+
+
 
 void loop() {
-  // sets the initial color
-  setAll( createRGB( 64, 5, 37 ) );
+  // sets the initial color  
+  setAll( createRGB( 64, 5, 37 ) ); // kudos to Fredrik Hov
   
-  // for (int n = (segment_length) -1; n >= 0 ; n--  ) {
-  for ( int n = 0; n < (segment_length); n++ ) {
+  for ( int n = 0; n < (segment_length); n++ ) {    
     float factor = sin( float(n) / segment_length ) * 1.25;
     
     // strip_colors[offset + n] = createRGB( 0, 0, map( n, 0, segment_length, 16, 255 ) );
     int value = factor * 255;
-    strip_colors[offset + n] = createRGB( 0, 0, value ); 
+    
+    if ( offset < segment_length / 2 ) {
+      // makes a flash of white light on beginning of the descent
+      strip_colors[offset + n] = createRGB( 255, 255, 255 ); 
+    } else {
+      strip_colors[offset + n] = createRGB( 0, 0, value ); 
+    }
+    
   }
   
   // since calculation happens after the operation: use >=
   // this ensures that the 'offset' will never be larger than the maximum number of LEDs
-  if ( offset >= N )
+  
+  if ( offset >= N ) {
+    if ( pulse_counter >= pulse_frequency ) {
+      int wait = 0;
+      delay( 2000 );
+      pulse_counter = 0;
+    } else {
+      pulse_counter++; 
+    }
+      
     offset = 0;
-  else
+  } else {
     offset++;
+  }
+  
+
   
   // use postFrame only once: preferrably at the end of the 'loop()'
   postFrame();
@@ -51,11 +78,9 @@ void loop() {
 }
 
 
-
-
-
 /**
  *  Color manipulation and transition
+ *  kudos Jonathan Ringstad
  */
 
 
